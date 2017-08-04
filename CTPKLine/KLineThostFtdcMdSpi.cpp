@@ -2,6 +2,7 @@
 
 #include "KLineThostFtdcMdSpi.h"
 #include "MessageQueue.h"
+#include "db.h"
 
 const TThostFtdcBrokerIDType	broker_id	= "9999";
 const TThostFtdcUserIDType		user_id		= "082644";
@@ -72,7 +73,11 @@ void KLineThostFtdcMdSpi::OnRspUserLogin(CThostFtdcRspUserLoginField * pRspUserL
 		{
 			int ret = m_pUserApi->SubscribeMarketData(pInstrumentId, nInstrumentNum);
 			if (0 == ret)
+			{
 				std::cout << "Request to subscribe market data OK" << std::endl;
+
+				db::Get(db::eFile)->Init("", KLineType::eRaw);
+			}
 			else
 				std::cerr << "Request to subscribe market data Failed, error: " << ret << std::endl;
 		}
@@ -104,6 +109,10 @@ void KLineThostFtdcMdSpi::OnRspSubMarketData(CThostFtdcSpecificInstrumentField *
 		if (pRspInfo)
 			std::cerr << pRspInfo->ErrorMsg << std::endl;
 	}
+
+	// Init k-line file db, e.g. setup header
+	db::Get(db::eFile)->Init(instrument_id, KLineType::eMinute);
+	db::Get(db::eFile)->Init(instrument_id, KLineType::eHour);
 }
 
 void KLineThostFtdcMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField * pDepthMarketData)
@@ -125,7 +134,7 @@ void KLineThostFtdcMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField * 
 
 		// Push the ticket to the queue.
 		TicketDataPtr spTicket(new TicketData(pDepthMarketData));
-		MessageQueue::Get()->Push(spTicket);
+		MessageQueue::Instance()->Push(spTicket);
 	}
 }
 

@@ -2,7 +2,7 @@
 #include "MessageQueue.h"
 
 
-MessageQueue* MessageQueue::g_pTicketQueue = new MessageQueue();
+MessageQueue* MessageQueue::s_pTicketQueue = new MessageQueue();
 
 MessageQueue::MessageQueue()
 {
@@ -12,9 +12,9 @@ MessageQueue::~MessageQueue()
 {
 }
 
-MessageQueue * MessageQueue::Get()
+MessageQueue * MessageQueue::Instance()
 {
-	return g_pTicketQueue;
+	return s_pTicketQueue;
 }
 
 void MessageQueue::Push(TicketDataPtr spTicket)
