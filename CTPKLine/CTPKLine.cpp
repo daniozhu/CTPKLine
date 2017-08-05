@@ -4,12 +4,14 @@
 #include "stdafx.h"
 #include "KLineThostFtdcMdSpi.h"
 #include "MessageQueue.h"
-#include "db.h"
+#include "KLineDb.h"
 
 #include <thread>
 
 //standard: tcp://180.168.146.187:10010 , 7x24: tcp://180.168.146.187:10031
 char* marketfront_address = "tcp://180.168.146.187:10031";
+
+bool bContinueProcess = true;
 
 typedef std::pair<DateTime /*update time*/, double/*last price*/> TimePrice;
 typedef std::vector<TimePrice> TimePriceVec;
@@ -22,10 +24,9 @@ bool TimePriceComp(const TimePrice& tp1, const TimePrice& tp2)
 
 void TicketToKLine()
 {
-	std::map<std::string, TimePriceVec> instrumentLastPriceMap;
+	std::map<std::string, TimePriceVec> instrumentPriceMap;
 
-	bool bContinue = true;
-	while (bContinue)
+	while (bContinueProcess)
 	{
 		TicketDataPtr spTicket = MessageQueue::Instance()->Pop();
 		if(spTicket.get() == nullptr)
@@ -40,20 +41,19 @@ void TicketToKLine()
 		std::cout << "Volume: " << spTicket->Volume << std::endl;
 		std::cout << "=================================================" << std::endl;
 
-		// write the raw data to file.
+		// write the raw ticket data to file db.
 		db::Get(db::eFile)->Commit(spTicket);
 
 		std::string strIntrumentId = spTicket->InstrumentID;
-		auto iter = instrumentLastPriceMap.find(strIntrumentId);
+		auto iter = instrumentPriceMap.find(strIntrumentId);
 		
 		// Process the first ticket for the instrument
-		if (iter == instrumentLastPriceMap.end())
+		if (iter == instrumentPriceMap.end())
 		{
 			TimePriceVec priceVec;
 			priceVec.emplace_back(spTicket->LastPriceTime, spTicket->LastPrice);
-
-			instrumentLastPriceMap[strIntrumentId] = priceVec;
-
+			
+			instrumentPriceMap.emplace(strIntrumentId, priceVec);
 			continue;
 		}
 
@@ -74,7 +74,7 @@ void TicketToKLine()
 			auto iter = std::find_if(timePriceVec.begin(), timePriceVec.end(),
 				[&prePriceTime](const TimePrice& tp) 
 			{
-				return  (tp.first.Day().compare(prePriceTime.Day()) == 0) &&
+				return  (tp.first.Hour().compare(prePriceTime.Hour()) == 0) &&
 						(tp.first.Minute().compare(prePriceTime.Minute()) == 0);
 			});
 

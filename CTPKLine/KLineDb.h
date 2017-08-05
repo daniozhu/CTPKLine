@@ -11,7 +11,7 @@ class KLineDb
 public:
 	virtual ~KLineDb() {};
 
-	virtual void Init(const std::string& strInstrumentId, KLineType klType) = 0;
+	virtual void Setup(char *ppInstrumentID[], int nCount) = 0;
 
 	virtual bool Commit(TicketDataPtr spTicket) = 0;
 
@@ -24,8 +24,8 @@ class KLineFileDb : public KLineDb
 public:
 	virtual ~KLineFileDb();
 
-	// Setup header
-	virtual void Init(const std::string& strInstrumentId, KLineType klType);
+	// Setup header for file db (e.g. excel)
+	virtual void Setup(char *ppInstrumentID[], int nCount);
 
 	virtual bool Commit(TicketDataPtr spTicket);
 
@@ -50,8 +50,5 @@ class db
 public:
 	enum DbType {eFile, eMySql};
 	static KLineDb* Get(DbType dbType);
-
-private:
-	static KLineFileDb* s_pKLineFileDb;
 };
 

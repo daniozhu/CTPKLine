@@ -2,14 +2,14 @@
 
 #include "KLineThostFtdcMdSpi.h"
 #include "MessageQueue.h"
-#include "db.h"
+#include "KLineDb.h"
 
 const TThostFtdcBrokerIDType	broker_id	= "9999";
 const TThostFtdcUserIDType		user_id		= "082644";
 const TThostFtdcPasswordType	password	= "19820517zjh";
 
-char* pInstrumentId[]						= {"sn1709"}; //"cu1710"
-const int nInstrumentNum					= 1;
+char* pInstrumentId[]						= {"sn1709", "cu1710"};
+const int nInstrumentNum					= 2;
 
 int g_request_id							= 0;
 
@@ -76,10 +76,11 @@ void KLineThostFtdcMdSpi::OnRspUserLogin(CThostFtdcRspUserLoginField * pRspUserL
 			{
 				std::cout << "Request to subscribe market data OK" << std::endl;
 
-				db::Get(db::eFile)->Init("", KLineType::eRaw);
+				// Setup file db, e.g. create headers
+				db::Get(db::eFile)->Setup(pInstrumentId, nInstrumentNum);
 			}
 			else
-				std::cerr << "Request to subscribe market data Failed, error: " << ret << std::endl;
+				std::cerr << "Request to subscribe market data failed, error: " << ret << std::endl;
 		}
 	}
 	else
@@ -109,30 +110,13 @@ void KLineThostFtdcMdSpi::OnRspSubMarketData(CThostFtdcSpecificInstrumentField *
 		if (pRspInfo)
 			std::cerr << pRspInfo->ErrorMsg << std::endl;
 	}
-
-	// Init k-line file db, e.g. setup header
-	db::Get(db::eFile)->Init(instrument_id, KLineType::eMinute);
-	db::Get(db::eFile)->Init(instrument_id, KLineType::eHour);
 }
 
 void KLineThostFtdcMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField * pDepthMarketData)
 {
 	if (pDepthMarketData)
 	{
-		//std::cout << "================================================="	<< std::endl;
-		//std::cout << "InstrumentID: "	<< pDepthMarketData->InstrumentID	<< std::endl;
-		//std::cout << "TradingDay: "		<< pDepthMarketData->TradingDay		<< std::endl;
-		//std::cout << "UpdateTime: "		<< pDepthMarketData->UpdateTime		<< std::endl;
-		////std::cout << "OpenPrice: "		<< pDepthMarketData->OpenPrice		<< std::endl;
-		////std::cout << "ClosePrice: "		<< pDepthMarketData->ClosePrice		<< std::endl;
-		////std::cout << "HighestPrice: "	<< pDepthMarketData->HighestPrice	<< std::endl;
-		////std::cout << "LowestPrice: " << pDepthMarketData->LowestPrice << std::endl;
-		//std::cout << "LastPrice: " << pDepthMarketData->LastPrice << std::endl;
-		//std::cout << "Volume: "			<< pDepthMarketData->Volume			<< std::endl;
-		//std::cout << "================================================="	<< std::endl;
-		
-
-		// Push the ticket to the queue.
+		// Push the ticket to the message queue so we don't block the API thread too long.
 		TicketDataPtr spTicket(new TicketData(pDepthMarketData));
 		MessageQueue::Instance()->Push(spTicket);
 	}

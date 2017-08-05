@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-#include "db.h"
+#include "KLineDb.h"
 
 #include <fstream>
 
@@ -14,58 +14,73 @@ KLineFileDb::KLineFileDb()
 
 std::string KLineFileDb::GetFileDbPath(const std::string & strInstrumentId, KLineType klType)
 {
-	std::string strType = "";
+	static std::map<std::pair<std::string, KLineType>, std::string> dbFilePathCache;
+
+	auto key = std::make_pair(strInstrumentId, klType);
+	auto iter = dbFilePathCache.find(key);
+	if (iter != dbFilePathCache.end())
+		return iter->second;
+
+	std::string strFilePath = "";
 	switch (klType)
 	{
 	case eMinute:
-		strType = "_Minute_KLineData.csv";
+		strFilePath = m_strRootDir + strInstrumentId + "_Minute_KLineData.csv";
 		break;
 	case eHour:
-		strType = "_Hour_KLineData.csv";
+		strFilePath = m_strRootDir + strInstrumentId +"_Hour_KLineData.csv";
 		break;
 	case eRaw:
-		strType = "_RawData.csv";
 		// for raw file, it will store all the ticket for the subscribed instruments,
 		// so don't contain instrument id in the file path.
-		return m_strRootDir + strType;
+		strFilePath = m_strRootDir + "_RawData.csv";
 		break;
 	default:
 		break;
 	}
 
-	return m_strRootDir + strInstrumentId + strType;
+	// add it to cache 
+	dbFilePathCache.emplace(key, strFilePath);
+
+	return strFilePath;
 }
 
 KLineFileDb::~KLineFileDb()
 {
 }
 
-void KLineFileDb::Init(const std::string & strInstrumentId, KLineType klType)
+void KLineFileDb::Setup(char *ppInstrumentID[], int nCount)
 {
-	std::string filePath = GetFileDbPath(strInstrumentId, klType);
-
+	// create header for raw ticket data file
+	std::string strRawFilePath = GetFileDbPath("", eRaw);
 	std::ofstream outFile;
-	outFile.open(filePath, std::ios::out);
-
-	if (klType == eRaw)
-	{
-		outFile << "InstrumentId" << ","
+	outFile.open(strRawFilePath, std::ios::out);
+	outFile << "InstrumentId" << ","
 			<< "LastPriceTime" << ","
 			<< "LastPrice" << ","
 			<< "Volume"
 			<< std::endl;
-	}
-	else
-	{
-		outFile <<"Time" << ","  
-			<<"OpenPrice" << ","
-			<< "ClosePrice" << ","
-			<< "HighPrice" << ","
-			<< "LowPrice"
-			<< std::endl;
-	}
-
 	outFile.close();
+	
+	// create header for minute and hour k-line files.
+	for (int i = 0; i < nCount; i++)
+	{
+		std::vector<std::string> klFilePaths;
+		klFilePaths.emplace_back(GetFileDbPath(ppInstrumentID[i], eMinute));
+		klFilePaths.emplace_back(GetFileDbPath(ppInstrumentID[i], eHour));
+		std::for_each(klFilePaths.begin(), klFilePaths.end(), [](const std::string& path)
+		{
+			std::ofstream outFile;
+			outFile.open(path, std::ios::out);
+			outFile << "Time" << ","
+				<< "OpenPrice" << ","
+				<< "ClosePrice" << ","
+				<< "HighPrice" << ","
+				<< "LowPrice"
+				<< std::endl;
+			outFile.close();
+		});
+	}
 }
 
 // For raw data
@@ -118,14 +133,12 @@ KLineDb * db::Get(DbType dbType)
 	{
 	case eFile:
 		return KLineFileDb::Instance();
-		break;
 
-	case eMySql:
-		return nullptr;
-		break;
+//	case eMySql:
+//		return KLineMySqlDb::Instance();
 
 	default:
-		return nullptr;
+		return KLineFileDb::Instance();
 		break;
 	}
 }

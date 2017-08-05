@@ -148,7 +148,7 @@
     <ClInclude Include="..\tradeapi\ThostFtdcTraderApi.h" />
     <ClInclude Include="..\tradeapi\ThostFtdcUserApiDataType.h" />
     <ClInclude Include="..\tradeapi\ThostFtdcUserApiStruct.h" />
-    <ClInclude Include="db.h" />
+    <ClInclude Include="KLineDb.h" />
     <ClInclude Include="KLineThostFtdcMdSpi.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -157,7 +157,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CTPKLine.cpp" />
-    <ClCompile Include="db.cpp" />
+    <ClCompile Include="KLineDb.cpp" />
     <ClCompile Include="KLineThostFtdcMdSpi.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

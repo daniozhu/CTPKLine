@@ -48,7 +48,7 @@
     <ClInclude Include="MessageQueue.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="db.h">
+    <ClInclude Include="KLineDb.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -68,7 +68,7 @@
     <ClCompile Include="MessageQueue.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="db.cpp">
+    <ClCompile Include="KLineDb.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
