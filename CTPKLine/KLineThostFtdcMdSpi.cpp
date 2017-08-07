@@ -2,16 +2,15 @@
 
 #include "KLineThostFtdcMdSpi.h"
 #include "MessageQueue.h"
-#include "KLineDb.h"
 
-const TThostFtdcBrokerIDType	broker_id	= "9999";
-const TThostFtdcUserIDType		user_id		= "082644";
-const TThostFtdcPasswordType	password	= "19820517zjh";
+const TThostFtdcBrokerIDType    broker_id   = "9999";
+const TThostFtdcUserIDType      user_id     = "082644";
+const TThostFtdcPasswordType    password    = "19820517zjh";
 
-char* pInstrumentId[]						= {"sn1709", "cu1710"};
-const int nInstrumentNum					= 2;
+int g_request_id                            = 0;
 
-int g_request_id							= 0;
+char* pInstrumentId[]                       = { "sn1709", "cu1710" };
+int nInstrumentNum                          = 2;
 
 KLineThostFtdcMdSpi::KLineThostFtdcMdSpi(CThostFtdcMdApi* pUserApi)
 	: m_pUserApi(pUserApi)
@@ -29,7 +28,7 @@ void KLineThostFtdcMdSpi::OnFrontConnected()
 
 	if (!m_pUserApi)
 	{
-		std::cerr << "No CTP API instance created" << std::endl;
+		std::cerr << "No CTP API instance gets created" << std::endl;
 		return;
 	}
 
@@ -52,7 +51,8 @@ void KLineThostFtdcMdSpi::OnFrontDisconnected(int nReason)
 }
 
 void KLineThostFtdcMdSpi::OnRspUserLogin(CThostFtdcRspUserLoginField * pRspUserLogin, 
-	CThostFtdcRspInfoField * pRspInfo, int nRequestID, bool bIsLast)
+	                                     CThostFtdcRspInfoField * pRspInfo, 
+	                                     int nRequestID, bool bIsLast)
 {
 	const bool bOK = (pRspInfo && 0 == pRspInfo->ErrorID);
 	if (bOK)
@@ -68,17 +68,12 @@ void KLineThostFtdcMdSpi::OnRspUserLogin(CThostFtdcRspUserLoginField * pRspUserL
 			std::cout << "====================================" << std::endl;
 		}
 
-		// Subscribe market data for the instruments.
+		// Subscribe market data.
 		if (m_pUserApi)
 		{
 			int ret = m_pUserApi->SubscribeMarketData(pInstrumentId, nInstrumentNum);
 			if (0 == ret)
-			{
 				std::cout << "Request to subscribe market data OK" << std::endl;
-
-				// Setup file db, e.g. create headers
-				db::Get(db::eFile)->Setup(pInstrumentId, nInstrumentNum);
-			}
 			else
 				std::cerr << "Request to subscribe market data failed, error: " << ret << std::endl;
 		}
@@ -92,11 +87,13 @@ void KLineThostFtdcMdSpi::OnRspUserLogin(CThostFtdcRspUserLoginField * pRspUserL
 }
 
 void KLineThostFtdcMdSpi::OnRspSubMarketData(CThostFtdcSpecificInstrumentField * pSpecificInstrument,
-	CThostFtdcRspInfoField * pRspInfo, int nRequestID, bool bIsLast)
+	                                         CThostFtdcRspInfoField * pRspInfo, 
+	                                         int nRequestID, bool bIsLast)
 {
 	std::cout << "OnRspSubMarketData" << std::endl;
 
-	TThostFtdcInstrumentIDType instrument_id;
+	TThostFtdcInstrumentIDType instrument_id; 
+	memset(&instrument_id, 0, sizeof(instrument_id));
 	strcpy_s(instrument_id, pSpecificInstrument ? pSpecificInstrument->InstrumentID : "unknown");
 
 	const bool bOK = pRspInfo && (0 == pRspInfo->ErrorID);
@@ -116,8 +113,10 @@ void KLineThostFtdcMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField * 
 {
 	if (pDepthMarketData)
 	{
+		assert(pDepthMarketData->LastPrice >= 0.0 && "Invalid market data");
+
 		// Push the ticket to the message queue so we don't block the API thread too long.
-		TicketDataPtr spTicket(new TicketData(pDepthMarketData));
+		TicketDataPtr spTicket(new TicketData(*pDepthMarketData));
 		MessageQueue::Instance()->Push(spTicket);
 	}
 }

@@ -4,84 +4,31 @@
 #include "../tradeapi/ThostFtdcUserApiStruct.h"
 
 #include <memory>
-
-struct CThostFtdcDepthMarketDataField;
+#include <assert.h>
 
 class DateTime
 {
 public:
-	DateTime()
-	{}
-
-	DateTime(const char* pDay, const char* pTime)
-		:m_day(pDay), m_time(pTime)
-	{
-		ExtractTime();
-	}
-
-	DateTime(const DateTime& rhs)
-	{
-		m_day = rhs.m_day;
-		m_time = rhs.m_time;
-		m_hour = rhs.m_hour;
-		m_minute = rhs.m_minute;
-	}
-
-	DateTime& operator = (const DateTime& rhs)
-	{
-		if (&rhs == this)
-			return *this;
-
-		m_day = rhs.m_day;
-		m_time = rhs.m_time;
-		m_hour = rhs.m_hour;
-		m_minute = rhs.m_minute;
-
-		return *this;
-	}
+	DateTime(const char* pDay, const char* pTime);
 	
-	void SetDay(const char* pDay)
-	{
-		m_day = pDay;
-	}
-
-	void SetTime(const char* pTime)
-	{
-		m_time = pTime;
-
-		ExtractTime();
-	}
-
-	const std::string& Day() const 
-	{
+	const std::string& Day() const {
 		return m_day;
 	}
 
-	const std::string& Time() const
-	{
+	const std::string& Time() const {
 		return m_time;
 	}
 
-	const std::string& Hour() const
-	{
+	const std::string& Hour() const {
 		return m_hour;
 	}
 	
-	const std::string& Minute() const
-	{
+	const std::string& Minute() const {
 		return m_minute;
 	}
 
 private:
-	void ExtractTime()
-	{
-		std::string strTime = m_time;
-		size_t nPos = strTime.find_first_of(":");
-		size_t nPos2 = strTime.find_last_of(":");
-
-		m_hour = strTime.substr(0, nPos);
-		m_minute = strTime.substr(nPos+1, nPos2-nPos-1);
-	}
+	void ExtractTime();
 
 private:
 	std::string m_day;
@@ -90,31 +37,33 @@ private:
 	std::string m_minute;
 };
 
-struct TicketData
+class TicketData
 {
-	TicketData(const CThostFtdcDepthMarketDataField* pMarketData)
-		: LastPrice(0.0), Volume(0)
-	{
-		memset(InstrumentID, 0, sizeof(InstrumentID));
+public:
+	TicketData(const CThostFtdcDepthMarketDataField& marketData);
 
-		if (pMarketData)
-		{
-			strcpy_s(InstrumentID, pMarketData->InstrumentID);
-
-			LastPriceTime.SetDay(pMarketData->TradingDay);
-			LastPriceTime.SetTime(pMarketData->UpdateTime);
-
-			LastPrice = pMarketData->LastPrice;
-			Volume = pMarketData->Volume;
-		}
+	const std::string& InstrumentID() const {
+		return m_instrumentId;
 	}
 
-	TThostFtdcInstrumentIDType InstrumentID;
-	DateTime LastPriceTime;
-	TThostFtdcPriceType LastPrice;
-	TThostFtdcVolumeType Volume;
-};
+	const DateTime& LastPriceTime() const {
+		return m_lastPriceTime;
+	}
 
+	double LastPrice() const {
+		return m_lastPrice;
+	}
+
+	int Volume() const {
+		return m_volume;
+	}
+
+private:
+	std::string   m_instrumentId;
+	DateTime      m_lastPriceTime;
+	double        m_lastPrice;
+	int           m_volume;
+};
 typedef std::shared_ptr<TicketData> TicketDataPtr;
 
 struct KLineData

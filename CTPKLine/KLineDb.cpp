@@ -4,16 +4,17 @@
 
 #include <fstream>
 
-KLineFileDb* KLineFileDb::s_klineFileDb = nullptr;
+KLineFileDb* KLineFileDb::s_pKLineFileDb = nullptr;
 
 KLineFileDb::KLineFileDb()
 	:m_strRootDir("c:\\temp\\")
 {
-
 }
 
-std::string KLineFileDb::GetFileDbPath(const std::string & strInstrumentId, KLineType klType)
+std::string KLineFileDb::GetFileDbPath(const std::string & strInstrumentId, KLineType klType) const
 {
+	// Cache the file db path for the specific instrument & type, 
+	// so we don't need to create it again when calling the function with the same arguments.
 	static std::map<std::pair<std::string, KLineType>, std::string> dbFilePathCache;
 
 	auto key = std::make_pair(strInstrumentId, klType);
@@ -51,7 +52,7 @@ KLineFileDb::~KLineFileDb()
 
 void KLineFileDb::Setup(char *ppInstrumentID[], int nCount)
 {
-	// create header for raw ticket data file
+	// Create header for raw ticket file db.
 	std::string strRawFilePath = GetFileDbPath("", eRaw);
 	std::ofstream outFile;
 	outFile.open(strRawFilePath, std::ios::out);
@@ -62,38 +63,37 @@ void KLineFileDb::Setup(char *ppInstrumentID[], int nCount)
 			<< std::endl;
 	outFile.close();
 	
-	// create header for minute and hour k-line files.
+	// Create header for minute and hour k-line file db.
 	for (int i = 0; i < nCount; i++)
 	{
-		std::vector<std::string> klFilePaths;
-		klFilePaths.emplace_back(GetFileDbPath(ppInstrumentID[i], eMinute));
-		klFilePaths.emplace_back(GetFileDbPath(ppInstrumentID[i], eHour));
-		std::for_each(klFilePaths.begin(), klFilePaths.end(), [](const std::string& path)
+		std::vector<std::string> klFileDbPaths;
+		klFileDbPaths.emplace_back(GetFileDbPath(ppInstrumentID[i], eMinute));
+		klFileDbPaths.emplace_back(GetFileDbPath(ppInstrumentID[i], eHour));
+		std::for_each(klFileDbPaths.cbegin(), klFileDbPaths.cend(), [](const std::string& path)
 		{
 			std::ofstream outFile;
 			outFile.open(path, std::ios::out);
 			outFile << "Time" << ","
-				<< "OpenPrice" << ","
-				<< "ClosePrice" << ","
-				<< "HighPrice" << ","
-				<< "LowPrice"
-				<< std::endl;
+				    << "OpenPrice" << ","
+				    << "ClosePrice" << ","
+				    << "HighPrice" << ","
+				    << "LowPrice"
+				    << std::endl;
 			outFile.close();
 		});
 	}
 }
 
-// For raw data
 bool KLineFileDb::Commit(TicketDataPtr spTicket)
 {
-	std::string filePath = GetFileDbPath(spTicket->InstrumentID, eRaw);
+	std::string filePath = GetFileDbPath(spTicket->InstrumentID(), eRaw);
 
 	std::ofstream outFile;
 	outFile.open(filePath, std::ios::app);
-	outFile << spTicket->InstrumentID << ","
-		<< spTicket->LastPriceTime.Day().c_str() <<" "<<spTicket->LastPriceTime.Time().c_str() << ","
-		<< spTicket->LastPrice << ", "
-		<< spTicket->Volume
+	outFile << spTicket->InstrumentID().c_str() << ","
+		<< spTicket->LastPriceTime().Day().c_str() <<" "<<spTicket->LastPriceTime().Time().c_str() << ","
+		<< spTicket->LastPrice() << ", "
+		<< spTicket->Volume()
 		<< std::endl;
 	outFile.close();
 
@@ -101,15 +101,17 @@ bool KLineFileDb::Commit(TicketDataPtr spTicket)
 }
 
 // For K-line data
-bool KLineFileDb::Commit(const std::string & strInstrumentId,
-	const DateTime & time, const KLineData & kl, KLineType klType)
+bool KLineFileDb::Commit(const std::string & strInstrumentId, 
+	                     const std::string & time, 
+	                     const KLineData & kl, 
+	                     KLineType klType)
 {
 	std::string filePath = GetFileDbPath(strInstrumentId, klType);
 
 	std::ofstream outFile;
 	outFile.open(filePath, std::ios::app); 
-	outFile << time.Day().c_str() <<" " << time.Time().c_str() <<","
-		<<kl.OpenPrice << ","
+	outFile << time.c_str() <<","
+		<< kl.OpenPrice << ","
 		<< kl.ClosePrice << ","
 		<< kl.HighPrice << ","
 		<< kl.LowPrice
@@ -121,10 +123,10 @@ bool KLineFileDb::Commit(const std::string & strInstrumentId,
 
 KLineFileDb* KLineFileDb::Instance()
 {
-	if (!s_klineFileDb)
-		s_klineFileDb = new KLineFileDb();
+	if (!s_pKLineFileDb)
+		s_pKLineFileDb = new KLineFileDb();
 
-	return s_klineFileDb;
+	return s_pKLineFileDb;
 }
 
 KLineDb * db::Get(DbType dbType)
@@ -138,6 +140,7 @@ KLineDb * db::Get(DbType dbType)
 //		return KLineMySqlDb::Instance();
 
 	default:
+		// Default is file db.
 		return KLineFileDb::Instance();
 		break;
 	}

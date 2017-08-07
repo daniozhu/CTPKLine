@@ -1,10 +1,7 @@
 #pragma once
 #include "../tradeapi/ThostFtdcMdApi.h"
 
-class CThostFtdcMdApi;
-
-class KLineThostFtdcMdSpi :
-	public CThostFtdcMdSpi
+class KLineThostFtdcMdSpi : public CThostFtdcMdSpi
 {
 public:
 	KLineThostFtdcMdSpi(CThostFtdcMdApi* pUserApi);
@@ -29,13 +26,16 @@ public:
 	virtual void OnHeartBeatWarning(int nTimeLapse);
 
 	virtual void OnRspUnSubMarketData(CThostFtdcSpecificInstrumentField *pSpecificInstrument, 
-		CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
+		                              CThostFtdcRspInfoField *pRspInfo, 
+		                              int nRequestID, 
+		                              bool bIsLast);
 
-	virtual void OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
+	virtual void OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout, 
+		                         CThostFtdcRspInfoField *pRspInfo, 
+		                         int nRequestID, 
+		                         bool bIsLast);
 
 private:
-
-	CThostFtdcMdApi*			m_pUserApi;
-
+	CThostFtdcMdApi* m_pUserApi;
 };
 

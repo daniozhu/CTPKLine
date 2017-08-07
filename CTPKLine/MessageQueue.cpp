@@ -19,29 +19,34 @@ MessageQueue * MessageQueue::Instance()
 
 void MessageQueue::Push(TicketDataPtr spTicket)
 {
-	std::unique_lock<std::mutex> lock(m_pushmutex);
+	std::unique_lock<std::mutex> lck(m_mutex);
 
 	m_queue.push(spTicket);
+
+	// Unlock the mutex so waiting thread can acquire it immediately when get notified.
+	lck.unlock();
 	m_cond.notify_one();
 }
 
 TicketDataPtr MessageQueue::Pop()
 {
-	std::unique_lock<std::mutex> lock(m_popmutex);
+	std::unique_lock<std::mutex> lck(m_mutex);
 
-	if (m_queue.empty())
+	while (m_queue.empty())
 	{
-		m_cond.wait(lock);
+		m_cond.wait(lck);
 	}
 
-	if(!m_queue.empty())
-	{
-		TicketDataPtr spTicket = m_queue.front();
-		m_queue.pop();
+	TicketDataPtr spTicket = m_queue.front();
+	m_queue.pop();
 
-		return spTicket;
-	}
-	
-	return TicketDataPtr(nullptr);
+	return spTicket;
+}
+
+bool MessageQueue::Empty() const
+{
+	std::unique_lock<std::mutex> lck(m_mutex);
+
+	return m_queue.empty();
 }
 
