@@ -80,7 +80,7 @@ void CreateHourKLine(const std::string strIntrumentId, const TimePriceVec& timeP
 
 void TicketToKLine()
 {
-	std::map<std::string, TimePriceVec> instrumentPriceMap;
+	std::map<std::string /*instrumentId*/, TimePriceVec /*time&price vector*/> instrumentPriceMap;
 
 	while (bContinueToCreateKLine)
 	{

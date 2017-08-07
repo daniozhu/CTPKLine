@@ -92,18 +92,16 @@ void KLineThostFtdcMdSpi::OnRspSubMarketData(CThostFtdcSpecificInstrumentField *
 {
 	std::cout << "OnRspSubMarketData" << std::endl;
 
-	TThostFtdcInstrumentIDType instrument_id; 
-	memset(&instrument_id, 0, sizeof(instrument_id));
-	strcpy_s(instrument_id, pSpecificInstrument ? pSpecificInstrument->InstrumentID : "unknown");
+	std::string strInstrumentID = pSpecificInstrument ? pSpecificInstrument->InstrumentID : "unknown";
 
 	const bool bOK = pRspInfo && (0 == pRspInfo->ErrorID);
 	if (bOK)
 	{
-		std::cout << "Subscribe to instrument " << instrument_id << " succeeded" << std::endl;
+		std::cout << "Subscribe to instrument " << strInstrumentID.c_str() << " succeeded" << std::endl;
 	}
 	else
 	{
-		std::cerr << "Subscribe to instrument " << instrument_id << " failed" << std::endl;
+		std::cerr << "Subscribe to instrument " << strInstrumentID.c_str() << " failed" << std::endl;
 		if (pRspInfo)
 			std::cerr << pRspInfo->ErrorMsg << std::endl;
 	}

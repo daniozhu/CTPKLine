@@ -2,8 +2,6 @@
 
 #include "TicketData.h"
 
-struct KLineData;
-
 enum KLineType { eMinute, eHour , eRaw };
 
 class KLineDb
