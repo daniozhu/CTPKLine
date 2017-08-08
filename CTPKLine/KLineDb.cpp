@@ -102,7 +102,7 @@ bool KLineFileDb::Commit(TicketDataPtr spTicket)
 
 // For K-line data
 bool KLineFileDb::Commit(const std::string & strInstrumentId, 
-	                     const std::string & time, 
+	                     const char* time, 
 	                     const KLineData & kl, 
 	                     KLineType klType)
 {
@@ -110,7 +110,7 @@ bool KLineFileDb::Commit(const std::string & strInstrumentId,
 
 	std::ofstream outFile;
 	outFile.open(filePath, std::ios::app); 
-	outFile << time.c_str() <<","
+	outFile << time <<","
 		<< kl.OpenPrice << ","
 		<< kl.ClosePrice << ","
 		<< kl.HighPrice << ","

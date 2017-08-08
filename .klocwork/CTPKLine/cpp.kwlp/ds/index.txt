@@ -1,0 +1,16 @@
+D:\CTP\CTPKLine\CTPKLine\KLineThostFtdcMdSpi.cpp;D:\CTP\CTPKLine\.klocwork\CTPKLine\cpp.kwlp\ds\1\zim4r33m.24t;1;0;False;A6B53366E1DC3508792B76B544570369B0926A1F;True
+D:\CTP\CTPKLine\CTPKLine\MessageQueue.cpp;D:\CTP\CTPKLine\.klocwork\CTPKLine\cpp.kwlp\ds\2\ydlxwrod.dod;2;0;False;2B2734996F69D4216922C98584C8FC0D12BC0C8E;True
+D:\CTP\CTPKLine\tradeapi\ThostFtdcUserApiStruct.h;D:\CTP\CTPKLine\.klocwork\CTPKLine\cpp.kwlp\ds\3\fog4x3hq.xfa;3;0;False;1E921B2EF4E0C518B5BFC3D8AFFEA267611F010B;False
+D:\CTP\CTPKLine\CTPKLine\TicketData.h;D:\CTP\CTPKLine\.klocwork\CTPKLine\cpp.kwlp\ds\4\kqsq2ow3.xd5;4;0;False;79E7180A86FCC69594869BADD79B6AED732C1371;True
+D:\CTP\CTPKLine\CTPKLine\TicketData.cpp;D:\CTP\CTPKLine\.klocwork\CTPKLine\cpp.kwlp\ds\5\tkqrtz0q.ocf;5;0;False;335EF29CACAB3EF3FDB684F45837893530EB2936;True
+D:\CTP\CTPKLine\CTPKLine\CTPKLine.cpp;D:\CTP\CTPKLine\.klocwork\CTPKLine\cpp.kwlp\ds\6\ptbsjyn3.guw;6;0;False;5A4A5A2DC43CC6F8BA3480DED649E43936778F7B;True
+D:\CTP\CTPKLine\tradeapi\ThostFtdcMdApi.h;D:\CTP\CTPKLine\.klocwork\CTPKLine\cpp.kwlp\ds\7\2mafq5vb.mxe;7;0;False;713ECADDFF3E473DB27ABBDDC17C1A33376DE36D;False
+D:\CTP\CTPKLine\CTPKLine\KLineThostFtdcMdSpi.h;D:\CTP\CTPKLine\.klocwork\CTPKLine\cpp.kwlp\ds\8\bmiz2eyx.dzr;8;0;False;D8A67D6700E6428BD08ED9F3AC12BCFAB0655F0A;True
+d:\CTP\CTPKLine\CTPKLine\MessageQueue.h;D:\CTP\CTPKLine\.klocwork\CTPKLine\cpp.kwlp\ds\9\xt3sfbgb.pu5;9;0;False;38FA2BE57B464AC9E1183C1FB347269D278A0C93;True
+D:\CTP\CTPKLine\tradeapi\ThostFtdcUserApiDataType.h;D:\CTP\CTPKLine\.klocwork\CTPKLine\cpp.kwlp\ds\1\ewamdzca.t2z;11;0;False;2337F5D3E18244AFDE29E44E19B6EB8271AF6090;False
+D:\CTP\CTPKLine\CTPKLine\stdafx.h;D:\CTP\CTPKLine\.klocwork\CTPKLine\cpp.kwlp\ds\2\zpj2t0d1.twv;12;0;False;234838A438D126C7095F55B39D6AAF0C499BD9ED;True
+D:\CTP\CTPKLine\CTPKLine\KLineDb.h;D:\CTP\CTPKLine\.klocwork\CTPKLine\cpp.kwlp\ds\8\pzonyb4j.bmn;18;0;False;F1EEED2774F1C74DFC275F275A93B0CB4F21FBF3;True
+D:\CTP\CTPKLine\CTPKLine\KLineDb.cpp;D:\CTP\CTPKLine\.klocwork\CTPKLine\cpp.kwlp\ds\9\ijv24qb4.eka;19;0;False;59BBF05D52E284D71F3F1D6D362CB7BED464624B;True
+D:\CTP\CTPKLine\CTPKLine\stdafx.cpp;D:\CTP\CTPKLine\.klocwork\CTPKLine\cpp.kwlp\ds\2\kfgpr421.rae;22;0;False;C13A524B5B163D40CF317FBF11ECD4D52E34CB99;False
+D:\CTP\CTPKLine\tradeapi\ThostFtdcTraderApi.h;;23;0;False;C8E5AD4683F38EC66513BD67168445687A4953F3;False
+D:\CTP\CTPKLine\CTPKLine\targetver.h;;24;0;False;03AD3CC7B864B3E1B0A198F35E01381C27A5CFBF;False

@@ -14,7 +14,7 @@ public:
 	virtual bool Commit(TicketDataPtr spTicket) = 0;
 
 	virtual bool Commit(const std::string& strInstrumentId, 
-		                const std::string& time, 
+		                const char* time, 
 		                const KLineData& kl, 
 		                KLineType klType) = 0;
 };
@@ -34,7 +34,7 @@ public:
 	virtual bool Commit(TicketDataPtr spTicket);
 
 	virtual bool Commit(const std::string& strInstrumentId, 
-		                const std::string& time, 
+		                const char* time, 
 		                const KLineData& kl, 
 		                KLineType klType);
 

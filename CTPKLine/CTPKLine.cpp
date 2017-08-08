@@ -12,6 +12,8 @@
 // 7x24:     tcp://180.168.146.187:10031
 char* marketfront_address = "tcp://180.168.146.187:10010";
 
+const int MAX_PATH = 255;
+
 bool bContinueToCreateKLine = true;
 
 typedef std::pair<DateTime /*update time*/, double/*last price*/> TimePrice;
@@ -48,11 +50,14 @@ void CreateMinuteKLine(const std::string strIntrumentId, const TimePriceVec& tim
 	klData.HighPrice  = std::max_element(iter, timePriceVec.end(), TimePriceComp)->second;
 	klData.LowPrice   = std::min_element(iter, timePriceVec.end(), TimePriceComp)->second;
 
-	std::string strTime = prePriceTime.Hour() + ":" + prePriceTime.Minute() + ":00";
-	db::Get(db::eFile)->Commit(strIntrumentId, strTime, klData, KLineType::eMinute);
+	char timebuffer[MAX_PATH];
+	//std::string strTime = prePriceTime.Day() + " " + prePriceTime.Hour() + ":" + prePriceTime.Minute() + ":00";
+	sprintf_s(timebuffer, "%s %s:%s:00", prePriceTime.Day().c_str(), prePriceTime.Hour().c_str(), prePriceTime.Minute().c_str());
+
+	db::Get(db::eFile)->Commit(strIntrumentId, timebuffer, klData, KLineType::eMinute);
 
 	std::cout << "****** Created minute k-line*******" << std::endl;
-	std::cout << "InstrumentId: " << strIntrumentId.c_str() << ", Time: " << strTime.c_str() << std::endl;
+	std::cout << "InstrumentId: " << strIntrumentId.c_str() << ", Time: " << timebuffer << std::endl;
 	std::cout << "************************************" << std::endl;
 }
 
@@ -70,11 +75,14 @@ void CreateHourKLine(const std::string strIntrumentId, const TimePriceVec& timeP
 	klData.HighPrice  = std::max_element(timePriceVec.begin(), timePriceVec.end(), TimePriceComp)->second;
 	klData.LowPrice   = std::min_element(timePriceVec.begin(), timePriceVec.end(), TimePriceComp)->second;
 
-	std::string strTime = prePriceTime.Hour() + ":00:00";
-	db::Get(db::eFile)->Commit(strIntrumentId, strTime, klData, KLineType::eHour);
+	//std::string strTime = prePriceTime.Day() + " " + prePriceTime.Hour() + ":00:00";
+	char timebuffer[MAX_PATH];
+	sprintf_s(timebuffer, "%s %s:00:00", prePriceTime.Day().c_str(), prePriceTime.Hour().c_str());
+
+	db::Get(db::eFile)->Commit(strIntrumentId, timebuffer, klData, KLineType::eHour);
 
 	std::cout << "****** Created hour k-line*********" << std::endl;
-	std::cout << "InstrumentId: " << strIntrumentId.c_str() << ", Time: " << strTime.c_str() << std::endl;
+	std::cout << "InstrumentId: " << strIntrumentId.c_str() << ", Time: " << timebuffer << std::endl;
 	std::cout << "************************************" << std::endl;
 }
 
@@ -84,7 +92,7 @@ void TicketToKLine()
 
 	while (bContinueToCreateKLine)
 	{
-		TicketDataPtr spTicket = MessageQueue::Instance()->Pop();
+		TicketDataPtr spTicket = MessageQueue<TicketDataPtr>::Instance()->Pop();
 		if(spTicket.get() == nullptr)
 			continue;
 
@@ -161,7 +169,7 @@ int main()
 	pUserApi->Release();
 
 	// clean up global/singleton obj
-	delete MessageQueue::Instance();
+	delete MessageQueue<TicketDataPtr>::Instance();
 	delete db::Get(db::eFile);
 
 	return 0;

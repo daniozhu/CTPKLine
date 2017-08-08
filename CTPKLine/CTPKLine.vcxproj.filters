@@ -65,9 +65,6 @@
     <ClCompile Include="TicketData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MessageQueue.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="KLineDb.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

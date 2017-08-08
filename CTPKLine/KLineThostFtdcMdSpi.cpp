@@ -115,7 +115,7 @@ void KLineThostFtdcMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField * 
 
 		// Push the ticket to the message queue so we don't block the API thread too long.
 		TicketDataPtr spTicket(new TicketData(*pDepthMarketData));
-		MessageQueue::Instance()->Push(spTicket);
+		MessageQueue<TicketDataPtr>::Instance()->Push(spTicket);
 	}
 }
 
